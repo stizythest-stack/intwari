@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Ticket Booking</title>
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f6f9;}
+header { background:#0a58ca; color:white; padding:20px; text-align:center; }
+h1 { margin:0;}
+section { max-width:600px; margin:30px auto; background:white; padding:20px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,.1); transition: all 0.3s ease; }
+label { display:block; margin:10px 0 5px; }
+input, select, button { width:100%; padding:10px; margin-bottom:15px; border-radius:5px; border:1px solid #ccc; }
+button { background:#0a58ca; color:white; border:none; cursor:pointer; font-weight:bold; transition: 0.3s; }
+button:hover { background:#084298; transform: scale(1.05); }
+.ticket { background:#e3f2fd; padding:15px; border-radius:8px; margin-top:20px; animation: fadeIn 0.5s; }
+#adminTickets { max-width:700px; margin:30px auto; }
+#adminTickets h2 { color:#0a58ca; text-align:center; margin-bottom:15px; }
+.admin-ticket { background:#fff3cd; padding:10px; border-radius:5px; margin-bottom:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); animation: fadeIn 0.5s; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px);}
+  to { opacity:1; transform: translateY(0);}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Online Ticket Booking</h1>
+  <p>Book Bus, Airplane or Train Tickets Easily!</p>
+</header>
+
+<section>
+  <h2>Book Your Ticket</h2>
+  <form id="ticketForm">
+    <label for="name">Full Name</label>
+    <input type="text" id="name" placeholder="Enter your name" required>
+
+    <label for="transport">Transport Type</label>
+    <select id="transport" required>
+      <option value="">Select...</option>
+      <option value="Bus">Bus</option>
+      <option value="Airplane">Airplane</option>
+      <option value="Train">Train</option>
+    </select>
+
+    <label for="from">From</label>
+    <input type="text" id="from" placeholder="Starting point" required>
+
+    <label for="to">To</label>
+    <input type="text" id="to" placeholder="Destination" required>
+
+    <label for="date">Date</label>
+    <input type="date" id="date" required>
+
+    <label for="seat">Seat Number</label>
+    <input type="number" id="seat" placeholder="Enter seat number" min="1" max="100" required>
+
+    <label for="price">Price ($)</label>
+    <input type="number" id="price" placeholder="Ticket price" min="1" required>
+
+    <button type="submit">Book Ticket</button>
+  </form>
+
+  <div id="ticketDisplay"></div>
+</section>
+
+<section id="adminTickets">
+  <h2>Admin Dashboard - Booked Tickets</h2>
+  <div id="allTickets"></div>
+</section>
+
+<script>
+// Utility functions
+function saveTicket(ticket) {
+  let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
+  tickets.push(ticket);
+  localStorage.setItem('tickets', JSON.stringify(tickets));
+}
+
+function loadTickets() {
+  const container = document.getElementById('allTickets');
+  container.innerHTML = '';
+  let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
+  tickets.forEach((t,i) => {
+    const div = document.createElement('div');
+    div.className = 'admin-ticket';
+    div.innerHTML = `
+      <strong>Ticket ${i+1}</strong><br>
+      Name: ${t.name}<br>
+      Transport: ${t.transport}<br>
+      From: ${t.from} | To: ${t.to}<br>
+      Date: ${t.date}<br>
+      Seat: ${t.seat} | Price: $${t.price}
+    `;
+    container.appendChild(div);
+  });
+}
+
+// Booking form
+const form = document.getElementById('ticketForm');
+const display = document.getElementById('ticketDisplay');
+
+form.addEventListener('submit', function(e){
+  e.preventDefault();
+
+  const ticket = {
+    name: document.getElementById('name').value,
+    transport: document.getElementById('transport').value,
+    from: document.getElementById('from').value,
+    to: document.getElementById('to').value,
+    date: document.getElementById('date').value,
+    seat: document.getElementById('seat').value,
+    price: document.getElementById('price').value
+  };
+
+  // Display ticket
+  display.innerHTML = `
+    <div class="ticket">
+      <h3>Ticket Details</h3>
+      <p><strong>Name:</strong> ${ticket.name}</p>
+      <p><strong>Transport:</strong> ${ticket.transport}</p>
+      <p><strong>From:</strong> ${ticket.from}</p>
+      <p><strong>To:</strong> ${ticket.to}</p>
+      <p><strong>Date:</strong> ${ticket.date}</p>
+      <p><strong>Seat:</strong> ${ticket.seat}</p>
+      <p><strong>Price:</strong> $${ticket.price}</p>
+      <p>✅ Your ticket is booked successfully!</p>
+    </div>
+  `;
+
+  // Save to LocalStorage
+  saveTicket(ticket);
+  loadTickets();
+
+  form.reset();
+});
+
+// Load tickets on page load
+window.onload = loadTickets;
+</script>
+
+</body>
+</html>
